@@ -45,7 +45,14 @@ class MinitestShopifyThemes::LiquidTest < Minitest::Test
     # Liquid expects string keys for variables, but Rails convention is to use symbols.
     # This method recursively converts all keys to strings so either convention can be used.
     hash.each_with_object({}) do |(key, value), acc|
-      acc[key.to_s] = value.is_a?(Hash) ? deep_stringify_keys(value) : value
+      acc[key.to_s] = case value
+      when Hash
+        deep_stringify_keys(value)
+      when Array
+        value.map { |v| v.is_a?(Hash) ? deep_stringify_keys(v) : v }
+      else
+        value
+      end
     end
   end
 end
